@@ -1,0 +1,11 @@
+{
+  "dataset": "processed/goias_facility_locations.csv",
+  "distance_matrix": "processed/distance_matrix_km.npy",
+  "n_municipalities": 246,
+  "total_population": 7056495,
+  "default_k": 12,
+  "default_radius_km": 80.0,
+  "default_budget_brl": 20939128.69,
+  "cost_model": "0.80M + normalized log(population), log(area), log(gdp_per_capita)",
+  "distance_model": "Haversine over SIRGAS 2000 municipality polygon centroids"
+}
