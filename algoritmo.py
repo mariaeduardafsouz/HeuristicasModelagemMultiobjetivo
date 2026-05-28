@@ -3,7 +3,7 @@ import pandas as pd
 import json
 from pathlib import Path
 
-_DIR = Path("repo/HeuristicasModelagemMultiobjetivo/dataset/processed")
+_DIR = Path("dataset/processed")
 
 _df    = pd.read_csv(_DIR / "goias_facility_locations.csv")
 _cfg   = json.loads((_DIR / "problem_config.json").read_text(encoding="utf-8"))
@@ -119,6 +119,8 @@ def run_ga(seed=42, pop_size=100, n_gen=300, tourn_k=3, prob_cross=0.8, prob_fli
     elite = pop[np.argmin(fits)].copy()
     elite_fit = min(fits)
 
+    historico = []
+
     for gen in range (n_gen):
         nova_pop = []
         while len(nova_pop) < pop_size:
@@ -148,6 +150,8 @@ def run_ga(seed=42, pop_size=100, n_gen=300, tourn_k=3, prob_cross=0.8, prob_fli
         if fits[melhor] < elite_fit:
             elite = pop[melhor].copy()
             elite_fit = fits[melhor]
+
+        historico.append(elite_fit)
     #
         print(f"Gen {gen+1}: melhor fitness = {elite_fit:.4f} km")
 
@@ -155,6 +159,6 @@ def run_ga(seed=42, pop_size=100, n_gen=300, tourn_k=3, prob_cross=0.8, prob_fli
     selected = np.where(elite==1)[0]
 
     
-    return elite, elite_fit, selected
+    return elite, elite_fit, selected, historico
 
 
