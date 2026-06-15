@@ -48,25 +48,47 @@ No decorrer do trabalho planeja-se também maximizar a cobertura populacional de
 
 - **(C2)**: o custo total de instalação não deve exceder o orçamento estabelecido
 
-- **(C3)**: cada município recebe ou não recebe uma facilidade
-
-
 ## 5. Penalização
+
+Como a restrição C2 (orçamento) é tratada por penalização em vez de
+ser imposta diretamente, a função objetivo é estendida para:
+
+`f_pen(x) = f(x) + λ · max(0, Σ_{i∈M} c_i · x_i − B)`
+
+onde o termo `max(0, ...)` representa a violação do orçamento em BRL
+e λ é o coeficiente de penalidade que converte essa violação em km,
+tornando-a comparável ao valor de f(x).
+
+O valor de λ foi estimado empiricamente pela razão:
+
+`λ ≈ f_típico / v_típico`
+
+onde f_típico é a média de f(x) em soluções aleatórias e v_típico é
+a violação média de C2 nas soluções que excedem o orçamento.
+Essa calibração garante que uma violação típica adicione uma penalidade
+da mesma ordem de grandeza que o próprio objetivo.
+
+Embora C2 seja uma restrição inegociável na prática, optou-se pela
+abordagem de penalização por ser mais simples de implementar em AGs
+do que um operador de reparo para o orçamento. A penalidade λ é
+calibrada para tornar violações de orçamento desvantajosas o suficiente
+para que o AG evite soluções infeasíveis.
+
+
 
 
 ## 6. Correspondência com o código
 
 | Símbolo matemático        | Função/variável no código         |
 |---------------------------|-----------------------------------|
-| M, n                      | `df`, `N = len(df)`                                      |
-| p_i                       | `df["population_2022"]`                                  |
-| c_i                       | `df["install_cost_brl"]`                                 |
+| M, n                      | `df`, `N = len(df)`               |
+| p_i                       | `df["population_2022"]`           |
+| c_i                       | `df["install_cost_brl"]`          |
 | d(i, j)                   | `distance_matrix[i, j]` (de `distance_matrix_km.npy`)   |
 | k, B                      | `config["default_k"]`, `config["default_budget_brl"]`   |
-| x_i                       | *(a implementar)*                                        |
-| f(x)                      | *(a implementar)*                                        |
-|     | *(a implementar)*                                        |
-| C1:             | *(a implementar)*                                        |
-| C2:         | *(a implementar)*                                        |
-| f_pen(x)                  | *(a implementar)*                                        |
-| ` `                   | *(a implementar)*                                        |
+| x_i                       | `vetor binário x de tamanho N (1 = facilidade instalada)`|
+| f(x)                      | ``avg_dist_weighted(selected)``    |
+| C1:                       | ``repair(x, rng)`` garante exatamente K uns|
+| C2:                       | ``budget_violation(selected)   ``  |
+| f_pen(x)                  | ``fitness(selected)*        ``|
+| λ                         | ``LAMBDA`` estimado empiricamente|
