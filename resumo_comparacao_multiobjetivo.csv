@@ -1,0 +1,4 @@
+metodo,algoritmo,config,pop_size,n_gen,avg_distance_mean,avg_distance_std,avg_distance_best,coverage_80km_mean,coverage_80km_std,coverage_80km_best,p95_distance_mean,p95_distance_std,p95_distance_best,max_distance_mean,total_cost_mean,budget_violation_max,tempo_medio_s
+AG baseline,GA,baseline,100,300,39.737021,0.494034,39.024037,84.982468,2.973405,89.474902,109.912022,5.408521,104.274789,201.672487,20574121.706,0.0,4.610849
+AG single-objective V3,GA,V3_gen500,100,500,39.436872,0.601487,38.615198,85.51474,2.492895,89.474902,108.866859,3.675413,104.274789,212.138964,20668373.278,0.0,7.633924
+NSGA-II compromisso,NSGA-II,nsga2_pop100_gen300,100,300,40.337168,0.500056,39.988068,90.403984,0.324982,90.781273,97.903469,4.218089,93.060415,208.462524,20225895.632,0.0,7.957372

@@ -23,7 +23,7 @@ for exp in experimentos:
 
     for seed in SEEDS:
         inicio = time.time()
-        _, fit, _, _ = run_ga(seed=seed, pop_size=exp["pop_size"], n_gen=exp["n_gen"])
+        _, fit, _, _ = run_ga(seed=seed, pop_size=exp["pop_size"], n_gen=exp["n_gen"], verbose=False)
         tempo = time.time() - inicio
         fits.append(fit)
         tempos.append(tempo)

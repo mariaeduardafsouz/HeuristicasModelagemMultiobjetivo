@@ -1,5 +1,9 @@
 import numpy as np
 import pandas as pd
+import matplotlib
+
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 from algoritmo import run_ga
 
@@ -14,7 +18,8 @@ for _, row in df_exp.iterrows():
     for seed in SEEDS:
         _, fit, _, _ = run_ga(seed=seed,
                                pop_size=int(row["pop_size"]),
-                               n_gen=int(row["n_gen"]))
+                               n_gen=int(row["n_gen"]),
+                               verbose=False)
         fits.append(fit)
     fits_por_config[row["config"]] = fits
     print(f"{row['config']} coletado")
@@ -24,7 +29,7 @@ historicos = {}
 for config, pop_size, n_gen in [("baseline", 100, 300), ("V3_gen500", 100, 500)]:
     hist_seeds = []
     for seed in SEEDS:
-        _, _, _, hist = run_ga(seed=seed, pop_size=pop_size, n_gen=n_gen)
+        _, _, _, hist = run_ga(seed=seed, pop_size=pop_size, n_gen=n_gen, verbose=False)
         hist_seeds.append(hist)
     historicos[config] = np.mean(hist_seeds, axis=0)
     print(f"Histórico {config} coletado")
@@ -83,7 +88,7 @@ from pathlib import Path
 _DIR = Path("dataset/processed")
 _df  = pd.read_csv(_DIR / "goias_facility_locations.csv")
 
-_, _, selected, _ = run_ga(seed=789, pop_size=100, n_gen=500)
+_, _, selected, _ = run_ga(seed=789, pop_size=100, n_gen=500, verbose=False)
 
 fig, ax = plt.subplots(figsize=(8, 8))
 ax.scatter(_df["longitude"], _df["latitude"],

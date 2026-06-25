@@ -23,6 +23,12 @@ python run_seeds.py
 
 # Gerar figuras
 python gerar_figuras.py
+
+# Rodar comparação multiobjetivo: AG baseline, AG V3 e NSGA-II
+python run_comparacao_multiobjetivo.py
+
+# Gerar figuras da comparação multiobjetivo
+python gerar_figuras_nsga2.py
 ```
 
 ---
@@ -46,6 +52,15 @@ python gerar_figuras.py
     ├── raw/                      # Dados brutos do IBGE
     └── processed/                # Dataset final (CSV, matriz de distâncias, config)
 ```
+
+Arquivos adicionais da extensão multiobjetivo:
+
+- `run_comparacao_multiobjetivo.py`: reexecuta AG baseline, AG V3 e NSGA-II com 5 sementes.
+- `gerar_figuras_nsga2.py`: gera os gráficos novos a partir dos CSVs já salvos.
+- `resultados_comparacao_multiobjetivo.csv`: métricas por semente para os três métodos.
+- `resumo_comparacao_multiobjetivo.csv`: resumo estatístico da comparação.
+- `historico_nsga2.csv`: evolução do NSGA-II por geração.
+- `fig6_comparacao_multiobjetivo.png`, `fig7_convergencia_nsga2.png`: novas figuras de análise.
 
 ---
 
@@ -71,6 +86,33 @@ A configuração **V3_gen500** (pop\_size = 100, n\_gen = 500) obteve a melhor m
 No entanto, o ganho de qualidade tem um custo: o desvio padrão do V3 (1,0178) é aproximadamente **2,83 vezes maior** que o do baseline (0,3592), evidenciando maior variabilidade entre as execuções. Isso significa que, apesar de encontrar soluções melhores em média, o V3 é menos estável — algumas sementes convergem para soluções muito boas, enquanto outras ficam presas em regiões de qualidade inferior. Esse trade-off entre qualidade esperada e estabilidade é característico de configurações com maior pressão de busca, e reforça a importância de executar múltiplas sementes ao avaliar metaheurísticas.
 
 Em termos práticos, a diferença de **~1 km** na distância média ponderada equivale, considerando a população total de Goiás (7.056.495 habitantes), a uma redução significativa no custo coletivo de deslocamento até as facilidades instaladas — o que justifica o maior tempo de execução da configuração V3 (53,0 s contra 31,6 s do baseline).
+
+---
+
+## Comparação multiobjetivo com NSGA-II
+
+Foi implementado um NSGA-II para tratar explicitamente três objetivos:
+
+1. minimizar a distância média ponderada pela população;
+2. maximizar a cobertura populacional em até 80 km, implementado como minimização da população descoberta;
+3. minimizar o percentil 95 ponderado das distâncias, usado como medida de desigualdade espacial no acesso.
+
+A restrição de exatamente `k = 12` facilidades continua sendo garantida pelo operador `repair`. A restrição orçamentária é tratada por dominância restrita: soluções viáveis dominam soluções inviáveis; entre soluções inviáveis, vence a de menor violação orçamentária.
+
+Os resultados abaixo foram gerados por `run_comparacao_multiobjetivo.py`, que reexecuta o AG com a penalização `LAMBDA` estimada de forma determinística. Por isso, estes números são a referência mais consistente para comparar baseline, single-objective e NSGA-II.
+
+| Método | Configuração | Distância média (km) | Cobertura 80 km (%) | P95 distância (km) | Melhor distância (km) | Violação máxima |
+|--------|--------------|----------------------|---------------------|--------------------|------------------------|-----------------|
+| AG baseline | pop=100, gen=300 | 39,7370 ± 0,4940 | 84,9825 ± 2,9734 | 109,9120 ± 5,4085 | 39,0240 | 0 |
+| AG single-objective V3 | pop=100, gen=500 | **39,4369 ± 0,6015** | 85,5147 ± 2,4929 | 108,8669 ± 3,6754 | **38,6152** | 0 |
+| NSGA-II compromisso | pop=100, gen=300 | 40,3372 ± 0,5001 | **90,4040 ± 0,3250** | **97,9035 ± 4,2181** | 39,9881 | 0 |
+
+O AG V3 continua sendo a melhor alternativa quando o único critério é distância média. O NSGA-II, porém, entrega uma solução de compromisso mais equilibrada: em relação ao V3, perde cerca de **0,90 km** na distância média, mas ganha aproximadamente **4,89 pontos percentuais** de cobertura em até 80 km e reduz o P95 em cerca de **10,96 km**. Isso mostra que a formulação multiobjetivo consegue reduzir a desigualdade espacial de acesso, mesmo sem otimizar exclusivamente a média.
+
+As novas figuras geradas são:
+
+- `fig6_comparacao_multiobjetivo.png`: comparação média dos três métodos.
+- `fig7_convergencia_nsga2.png`: evolução dos objetivos ao longo das gerações.
 
 ---
 

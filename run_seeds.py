@@ -12,7 +12,7 @@ for seed in SEEDS:
     print(f"Rodando semente {seed}...")
     inicio = time.time()
 
-    elite, elite_fit, selected, historico = run_ga(seed=seed)
+    elite, elite_fit, selected, historico = run_ga(seed=seed, verbose=False)
 
     tempo = time.time() - inicio
 
