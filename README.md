@@ -101,11 +101,11 @@ A restrição de exatamente `k = 12` facilidades continua sendo garantida pelo o
 
 Os resultados abaixo foram gerados por `run_comparacao_multiobjetivo.py`, que reexecuta o AG com a penalização `LAMBDA` estimada de forma determinística. Por isso, estes números são a referência mais consistente para comparar baseline, single-objective e NSGA-II.
 
-| Método | Configuração | Distância média (km) | Cobertura 80 km (%) | P95 distância (km) | Melhor distância (km) | Violação máxima |
-|--------|--------------|----------------------|---------------------|--------------------|------------------------|-----------------|
-| AG baseline | pop=100, gen=300 | 39,7370 ± 0,4940 | 84,9825 ± 2,9734 | 109,9120 ± 5,4085 | 39,0240 | 0 |
-| AG single-objective V3 | pop=100, gen=500 | **39,4369 ± 0,6015** | 85,5147 ± 2,4929 | 108,8669 ± 3,6754 | **38,6152** | 0 |
-| NSGA-II compromisso | pop=100, gen=300 | 40,3372 ± 0,5001 | **90,4040 ± 0,3250** | **97,9035 ± 4,2181** | 39,9881 | 0 |
+| Método | Configuração | Distância média (km) | Cobertura 80 km (%) | P95 distância (km) | Gini espacial | Melhor distância (km) | Violação máxima |
+|--------|--------------|----------------------|---------------------|--------------------|---------------|-----------------------|-----------------|
+| AG baseline | pop=100, gen=300 | 39,7370 ± 0,4940 | 84,9825 ± 2,9734 | 109,9120 ± 5,4085 | 0,3224 ± 0,0122 | 39,0240 | 0 |
+| AG single-objective V3 | pop=100, gen=500 | **39,4369 ± 0,6015** | 85,5147 ± 2,4929 | 108,8669 ± 3,6754 | 0,3341 ± 0,0149 | **38,6152** | 0 |
+| NSGA-II compromisso | pop=100, gen=300 | 40,3372 ± 0,5001 | **90,4040 ± 0,3250** | **97,9035 ± 4,2181** | **0,3154 ± 0,0192** | 39,9881 | 0 |
 
 O AG V3 continua sendo a melhor alternativa quando o único critério é distância média. O NSGA-II, porém, entrega uma solução de compromisso mais equilibrada: em relação ao V3, perde cerca de **0,90 km** na distância média, mas ganha aproximadamente **4,89 pontos percentuais** de cobertura em até 80 km e reduz o P95 em cerca de **10,96 km**. Isso mostra que a formulação multiobjetivo consegue reduzir a desigualdade espacial de acesso, mesmo sem otimizar exclusivamente a média.
 
@@ -113,6 +113,36 @@ As novas figuras geradas são:
 
 - `fig6_comparacao_multiobjetivo.png`: comparação média dos três métodos.
 - `fig7_convergencia_nsga2.png`: evolução dos objetivos ao longo das gerações.
+
+---
+
+## Diferencial ético — equidade espacial
+
+### Métrica de equidade: índice de Gini espacial
+
+A proposta do projeto define como diferencial ético a incorporação de equidade espacial no acesso às facilidades. Para medir isso formalmente, foi implementado o **índice de Gini espacial**, calculado sobre as distâncias mínimas de cada município até a facilidade mais próxima:
+
+```
+G = (2 · Σᵢ i·dᵢ) / (n · Σᵢ dᵢ) − (n+1)/n
+```
+
+onde `dᵢ` são as distâncias mínimas de cada um dos 246 municípios à facilidade mais próxima, ordenadas em ordem crescente. O índice varia de 0 (todos os municípios equidistantes das facilidades — acesso perfeitamente igual) a 1 (máxima concentração do acesso em poucos municípios). A função `gini_espacial(selected)` está implementada em [`algoritmo.py`](algoritmo.py).
+
+### Por que Gini e não P95?
+
+O P95 captura apenas o extremo superior da distribuição de distâncias, ignorando a distribuição completa. O Gini, por ser sensível a toda a curva de Lorenz, detecta desigualdades que o P95 não vê — por exemplo, uma solução pode ter P95 baixo mas concentrar boa cobertura em municípios populosos enquanto deixa os menores sistematicamente distantes. O Gini penaliza essa concentração.
+
+### Resultado
+
+| Método | Gini espacial médio | Desvio |
+|--------|---------------------|--------|
+| AG baseline | 0,3224 | 0,0122 |
+| AG single-objective V3 | 0,3341 | 0,0149 |
+| NSGA-II compromisso | **0,3154** | 0,0192 |
+
+O **NSGA-II** apresenta o menor Gini médio (0,3154), confirmando que a formulação multiobjetivo — ao otimizar explicitamente cobertura e P95 como objetivos separados — produz soluções mais equitativas do que o AG single-objective. Curiosamente, o AG V3 (gen=500) tem Gini ligeiramente **maior** que o baseline (0,3341 vs 0,3224): ao buscar exclusivamente a menor distância média ponderada por população, o algoritmo tende a concentrar facilidades em regiões densamente povoadas, penalizando municípios menores e mais afastados.
+
+Esse resultado reforça o argumento central do diferencial ético do projeto: otimizar apenas eficiência (distância média) pode gerar soluções mais rápidas e com melhor média, mas às custas de maior desigualdade espacial. O NSGA-II, ao tratar equidade como objetivo explícito, oferece ao tomador de decisão soluções onde o ganho de cobertura e a redução do Gini compensam a pequena perda na distância média.
 
 ---
 

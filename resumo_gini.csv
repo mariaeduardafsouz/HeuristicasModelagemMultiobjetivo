@@ -1,0 +1,16 @@
+metodo,seed,gini_espacial
+AG baseline,42,0.340195
+AG baseline,123,0.323913
+AG baseline,456,0.308782
+AG baseline,789,0.325956
+AG baseline,1011,0.313274
+AG single-objective V3,42,0.340195
+AG single-objective V3,123,0.340212
+AG single-objective V3,456,0.308782
+AG single-objective V3,789,0.347125
+AG single-objective V3,1011,0.334257
+NSGA-II compromisso,42,0.305681
+NSGA-II compromisso,123,0.29282
+NSGA-II compromisso,456,0.31596
+NSGA-II compromisso,789,0.317772
+NSGA-II compromisso,1011,0.344934

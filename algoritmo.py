@@ -63,6 +63,15 @@ def fitness(selected):
     return avg_dist_weighted(selected) + LAMBDA * budget_violation(selected)
 
 
+def gini_espacial(selected):
+    d = nearest_distances(selected)
+    d_sorted = np.sort(d)
+    if d_sorted.mean() == 0:
+        return 0.0
+    indices = np.arange(1, N + 1)
+    return float((2 * (indices * d_sorted).sum()) / (N * d_sorted.sum()) - (N + 1) / N)
+
+
 def nearest_distances(selected):
     selected = np.asarray(selected, dtype=int)
     if selected.size == 0:
